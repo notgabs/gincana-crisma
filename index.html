@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crisma</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- ÍCONE DA ABA DO NAVEGADOR (FAVICON) -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 flex flex-col min-h-screen">
+
+  <header class="bg-red-500 text-white shadow-md fixed top-0 left-0 right-0 h-16 flex items-center px-4 z-50">
+    <button onclick="toggleMenu()" class="p-2 rounded-md hover:bg-red-600 focus:outline-none transition mr-4">
+      <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+    <span id="main-top-title" class="font-bold text-xl tracking-wider uppercase">Menu Inicial</span>
+  </header>
+
+  <div class="flex pt-16 flex-1 relative overflow-x-hidden">
+    
+    <aside id="sidebar-menu" class="bg-white w-64 border-r border-gray-200 fixed left-0 top-16 bottom-0 z-40 transform -translate-x-full transition-transform duration-300 ease-in-out">
+      <div class="p-4 space-y-1">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">Navegação</p>
+        
+        <button onclick="switchTab('home')" id="tab-home" class="w-full text-left px-3 py-2.5 rounded-lg font-medium transition text-gray-700 bg-red-50 text-red-600 flex items-center space-x-2">
+          <span>🏠</span> <span>Menu Inicial</span>
+        </button>
+        
+        <button onclick="switchTab('crismandos')" id="tab-crismandos" class="w-full text-left px-3 py-2.5 rounded-lg font-medium transition text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center space-x-2">
+          <span>📋</span> <span>Crismandos</span>
+        </button>
+        
+        <button onclick="switchTab('catequistas')" id="tab-catequistas" class="w-full text-left px-3 py-2.5 rounded-lg font-medium transition text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center space-x-2">
+          <span>👥</span> <span>Anjos/Protegidos</span>
+        </button>
+        
+        <button onclick="switchTab('chamada')" id="tab-chamada" class="w-full text-left px-3 py-2.5 rounded-lg font-medium transition text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center space-x-2">
+          <span>🗓️</span> <span>Chamada</span>
+        </button>
+        
+        <button onclick="switchTab('amemoria')" id="tab-amemoria" class="w-full text-left px-3 py-2.5 rounded-lg font-medium transition text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center space-x-2">
+          <span>🏆</span> <span>Amemoria</span>
+        </button>
+        
+        <button onclick="switchTab('estatisticas')" id="tab-estatisticas" class="w-full text-left px-3 py-2.5 rounded-lg font-medium transition text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center space-x-2">
+          <span>📊</span> <span>Estatísticas</span>
+        </button>
+        
+      </div>
+    </aside>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
+
+ <section id="content-home" class="space-y-4 max-w-4xl mx-auto animate-fade-in pb-12 relative bg-transparent -mt-6">
+        
+        <div class="fixed left-0 top-20 bottom-0 w-[35vw] pointer-events-none opacity-30 flex items-center justify-start select-none z-[-10] overflow-hidden bg-transparent">
+          <img src="maria.png" onerror="this.style.display='none'" class="h-[80%] w-auto object-contain object-left scale-110 -translate-x-6" style="position: fixed; z-index: -10;">
+        </div>
+        
+        <div class="fixed right-0 top-20 bottom-0 w-[35vw] pointer-events-none opacity-30 flex items-center justify-end select-none z-[-10] overflow-hidden bg-transparent">
+          <img src="jesus.png" onerror="this.style.display='none'" class="h-[80%] w-auto object-contain object-right scale-110 translate-x-6" style="position: fixed; z-index: -10;">
+        </div>
+
+        <div class="relative z-10 space-y-4 bg-transparent">
+          
+         <div class="text-center pt-16 pb-2 bg-transparent flex flex-col items-center justify-center">
+            <h1 class="text-8xl sm:text-[11rem] font-normal bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent drop-shadow-sm py-4 -my-2 relative z-10" 
+                style="font-family: 'Great Vibes', cursive; line-height: 1; overflow: visible;">
+              Crisma
+            </h1>
+            <div class="inline-flex items-center gap-2 bg-red-100/90 border border-red-200/60 px-4 py-1.5 rounded-full shadow-sm relative z-20 -mt-8">
+              <span class="flex h-2 w-2 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+              </span>
+              <p class="text-xs sm:text-sm font-black text-red-600 uppercase tracking-widest">
+                Turma de 2026-2027
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-[#faf9f5] rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden p-4 transition-all duration-300 hover:shadow-2xl relative z-10">
+            <div id="photo-placeholder" onclick="document.getElementById('main-photo-input').click()" class="border-4 border-dashed border-gray-300/60 hover:border-red-300 rounded-xl p-14 cursor-pointer hover:bg-red-50/20 transition-all text-center group">
+              <div class="text-4xl mb-2 group-hover:scale-110 transition-transform duration-300">📸</div>
+              <p class="text-gray-600 font-bold text-lg group-hover:text-red-500 transition-colors">Clique para carregar a Foto Oficial da Turma</p>
+              <p class="text-xs text-gray-400 mt-1">Formatos aceitos: JPG, PNG. Prefira fotos horizontais.</p>
+              <input type="file" id="main-photo-input" class="hidden" accept="image/*" />
+            </div>
+            <img id="main-photo-display" class="w-full max-h-[550px] object-cover rounded-xl hidden shadow-md" src="" alt="Foto Oficial Crisma 2026">
+          </div>
+
+          <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl shadow-lg p-6 relative overflow-hidden text-center border border-red-600 relative z-10">
+            <div class="absolute -left-8 -top-8 text-white/10 text-9xl font-black select-none pointer-events-none scale-x-[-1] rotate-45">🕊️</div>
+            
+            <div class="absolute -right-10 -bottom-10 text-white/10 text-9xl font-black select-none pointer-events-none">🕊️</div>
+            
+            <p class="text-lg sm:text-xl text-white italic font-medium leading-relaxed max-w-2xl mx-auto drop-shadow-sm relative z-20">
+              "Site feito para meus amigos catequistas conseguirem ver melhor e melhorarmos nossa organização, espero que gostem!"
+            </p>
+          </div>
+
+          
+          
+        </div>
+      </section>
+
+      <!-- ABA 2: CRISMANDOS -->
+      <section id="content-crismandos" class="hidden space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-2xl font-bold text-gray-900">Cadastro de Crismandos</h2>
+          <button onclick="openModal('modal-crismando')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium shadow transition">+ Novo Crismando</button>
+        </div>
+        <div id="grid-crismandos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+      </section>
+
+      <!-- ABA 3: CATEQUISTAS -->
+      <section id="content-catequistas" class="hidden space-y-4">
+        <h2 class="text-2xl font-bold text-gray-900">Equipe de Catequistas</h2>
+        <div id="grid-catequistas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </section>
+
+      <!-- ABA 4: CHAMADA -->
+      <section id="content-chamada" class="hidden space-y-6">
+        <div class="flex justify-between items-center">
+          <h2 class="text-2xl font-bold text-gray-900">Controle de Presença</h2>
+          <button onclick="abrirNovaChamada()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium shadow transition">+ Nova Chamada</button>
+        </div>
+        <div id="lista-chamadas-salvas" class="space-y-4"></div>
+      </section>
+
+      <!-- ABA 5: AMEMORIA -->
+      <section id="content-amemoria" class="hidden space-y-6">
+        <div class="flex justify-between items-center">
+          <h2 class="text-2xl font-bold text-gray-900">Amemoria</h2>
+          <button onclick="openModal('modal-desafio')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium shadow transition">+ Novo Desafio</button>
+        </div>
+        
+        <div id="grid-challenges" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">
+          <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-lg font-bold mb-3 border-b pb-2 text-gray-700">🏆 Ranking Geral Individual</h3>
+            <ol id="leaderboard-individual" class="space-y-2 list-decimal list-inside text-sm text-gray-600"></ol>
+          </div>
+          <div class="bg-white rounded-xl shadow p-4">
+            <h3 class="text-lg font-bold mb-3 border-b pb-2 text-gray-700">🛡️ Ranking por Equipe</h3>
+            <ol id="leaderboard-team" class="space-y-2 list-decimal list-inside text-sm text-gray-600"></ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA 6: ESTATÍSTICAS -->
+      <section id="content-estatisticas" class="hidden space-y-6">
+       <!-- GRÁFICOS AJUSTADOS COM TAMANHO MAXIMIZADO EM ATÉ 300PX -->
+        <div id="area-conteudo-estatisticas" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+            <h3 class="text-lg font-bold mb-4 text-gray-700 w-full text-left">Porcentagem de Presença Geral</h3>
+            <div class="w-full max-w-[300px] max-h-[300px]">
+              <canvas id="chart-attendance"></canvas>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+            <h3 class="text-lg font-bold mb-4 text-gray-700 w-full text-left">Engajamento</h3>
+            <div class="w-full max-w-[300px] max-h-[300px]">
+              <canvas id="chart-gender"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL 1: FICHA DO CRISMANDO -->
+  <div id="modal-crismando" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl h-[85vh] flex flex-col overflow-hidden">
+      <div class="bg-gray-50 border-b p-4 flex justify-between items-center">
+        <h3 id="modal-title" class="text-lg font-bold text-gray-800">Ficha do Crismando</h3>
+        <button onclick="closeModal('modal-crismando')" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+      </div>
+      
+      <form id="form-crismando" class="flex-1 overflow-y-auto p-6 space-y-5" onsubmit="salvarFichaCrismando(event)">
+        <input type="hidden" id="student-id">
+
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider border-b pb-1">Dados Civis</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Nome Completo</label>
+              <input type="text" id="student-name" required class="border border-gray-200 rounded-xl p-2 w-full outline-none focus:border-red-400 text-sm transition">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Documento (CPF)</label>
+              <input type="text" id="student-doc" placeholder="Ex: 00.000.000-0" class="border border-gray-200 rounded-xl p-2 w-full outline-none focus:border-red-400 text-sm transition">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Data de Nascimento</label>
+              <input type="date" id="student-birth" class="border border-gray-200 rounded-xl p-2 w-full outline-none focus:border-red-400 text-sm transition">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Gênero</label>
+              <input type="hidden" id="student-gender" value="M">
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="btn-gender-m" onclick="selecionarGenero('M')" class="py-2 rounded-xl border text-sm font-bold transition shadow-sm bg-blue-500 border-blue-600 text-white">Masculino</button>
+                <button type="button" id="btn-gender-f" onclick="selecionarGenero('F')" class="py-2 rounded-xl border text-sm font-bold text-gray-600 border-gray-200 hover:bg-pink-500 hover:text-white hover:border-pink-600 transition shadow-sm">Feminino</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider border-b pb-1">Contatos</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Telefone do Jovem</label>
+              <input type="text" id="student-phone" placeholder="(00) 00000-0000" class="border border-gray-200 rounded-xl p-2 w-full outline-none focus:border-red-400 text-sm transition">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Nome do Responsável</label>
+              <input type="text" id="student-resp-name" placeholder="Nome de quem cuida" class="border border-gray-200 rounded-xl p-2 w-full outline-none focus:border-red-400 text-sm transition">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Telefone do Responsável</label>
+              <input type="text" id="student-resp-phone" placeholder="(00) 00000-0000" class="border border-gray-200 rounded-xl p-2 w-full outline-none focus:border-red-400 text-sm transition">
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider border-b pb-1">Vida Sacramental</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-gray-50 p-3 rounded-2xl border border-gray-100 flex flex-col justify-between space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-700">Já é Batizado?</span>
+                <input type="hidden" id="student-batizado" value="N">
+                <button type="button" id="btn-batismo" onclick="toggleCheckbox('student-batizado', 'btn-batismo')" class="px-4 py-1 rounded-xl border text-xs font-bold bg-gray-200 text-gray-600 border-gray-300 transition">Não</button>
+              </div>
+              <input type="text" id="student-batismo-local" placeholder="Em qual Paróquia / Cidade?" class="border border-gray-200 rounded-xl p-2 w-full outline-none focus:border-red-400 text-xs transition bg-white">
+            </div>
+            <div class="bg-gray-50 p-3 rounded-2xl border border-gray-100 flex items-center justify-between">
+              <span class="text-xs font-bold text-gray-700">Já fez a Primeira Comunhão?</span>
+              <input type="hidden" id="student-comunhao" value="N">
+              <button type="button" id="btn-comunhao" onclick="toggleCheckbox('student-comunhao', 'btn-comunhao')" class="px-4 py-1 rounded-xl border text-xs font-bold bg-gray-200 text-gray-600 border-gray-300 transition">Não</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider border-b pb-1">Observações Gerais</h4>
+          <div>
+            <textarea id="student-special" rows="3" placeholder="Insira aqui restrições de saúde, alergias, recados ou qualquer observação especial sobre este crismando..." class="border border-gray-200 rounded-xl p-3 w-full outline-none focus:border-red-400 text-sm transition resize-none"></textarea>
+          </div>
+        </div>
+        
+        <div class="flex justify-end space-x-2 pt-3 border-t">
+          <button type="button" onclick="closeModal('modal-crismando')" class="px-5 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 font-medium text-sm transition">Cancelar</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition">Salvar Ficha</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: LANÇAR PONTUAÇÃO (AJUSTADO) -->
+  <div id="modal-challenge" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-xl overflow-hidden">
+      <div class="bg-gray-50 border-b p-4 flex justify-between items-center">
+        <h3 id="challenge-modal-title" class="text-lg font-bold">Lançar Pontuação</h3>
+        <button onclick="closeModal('modal-challenge')" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+      </div>
+      <div class="p-4 space-y-4">
+        <p id="challenge-modal-desc" class="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border"></p>
+        
+        <!-- Lista de crismandos com selects de pontuação -->
+        <div id="challenge-scoring-list" class="space-y-2 max-h-[50vh] overflow-y-auto pr-1"></div>
+        
+        <div class="flex justify-end space-x-2 pt-3 border-t">
+          <button onclick="closeModal('modal-challenge')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-medium transition">Fechar</button>
+          <button onclick="salvarPontosDesafio()" class="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition">Salvar Pontos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: CRIAR NOVO DESAFIO -->
+  <div id="modal-desafio" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+      <div class="bg-gray-50 border-b p-4 flex justify-between items-center">
+        <h3 class="text-lg font-bold text-gray-800">Criar Novo Desafio</h3>
+        <button onclick="closeModal('modal-desafio')" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-desafio" class="p-4 space-y-4" onsubmit="criarDesafio(event)">
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-gray-700">Nome do Desafio</label>
+          <input type="text" id="challenge-title" required placeholder="Ex: Domingo de Ramos" class="border rounded-lg p-2 w-full outline-none focus:border-red-400 text-sm">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-gray-700">Descrição / Instruções</label>
+          <textarea id="challenge-desc" rows="2" placeholder="Instruções gerais para a gincana..." class="border rounded-lg p-2 w-full outline-none focus:border-red-400 resize-none text-sm"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-gray-700">Opções de Pontuação</label>
+          <div id="enquete-options-container" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <div class="flex items-center space-x-2 option-row">
+              <input type="text" placeholder="Adicionar opção (Ex: Foto com ramo)" oninput="handleEnqueteInput(this)" class="enquete-text border rounded-lg p-2 flex-1 text-sm outline-none focus:border-red-400">
+              <input type="number" placeholder="Pts" class="enquete-pts border rounded-lg p-2 w-20 text-sm outline-none focus:border-red-400">
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end space-x-2 pt-3 border-t">
+          <button type="button" onclick="closeModal('modal-desafio')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-medium text-sm transition">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition">Criar Desafio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: REGISTRAR CHAMADA (CORRIGIDO) -->
+  <div id="modal-chamada" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden">
+      <div class="bg-gray-50 border-b p-4 flex justify-between items-center">
+        <h3 class="text-lg font-bold text-gray-800">Registrar Nova Chamada</h3>
+        <button onclick="closeModal('modal-chamada')" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto p-6 space-y-4">
+        <input type="hidden" id="chamada-id-edicao">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Data do Encontro</label>
+            <input type="date" id="chamada-data" required class="border rounded-lg p-2 w-full outline-none focus:border-red-400 text-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Tema do Encontro</label>
+            <input type="text" id="chamada-tema" required placeholder="Ex: Sacramentos" class="border rounded-lg p-2 w-full outline-none focus:border-red-400 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1 text-gray-700">Descrição / Anotações</label>
+          <textarea id="chamada-desc" rows="2" placeholder="O que aconteceu no encontro..." class="border rounded-lg p-2 w-full outline-none focus:border-red-400 resize-none text-sm"></textarea>
+        </div>
+        <div class="border-t pt-4">
+          <label class="block text-sm font-semibold mb-3 text-gray-700">Lista de Alunos (Clique para alternar: ⚪ Pendente 🟢 Presença 🔴 Falta)</label>
+          <div id="container-chamada-jovens" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
+        </div>
+      </div>
+      <div class="bg-gray-50 border-t p-4 flex justify-end space-x-2">
+        <button type="button" onclick="closeModal('modal-chamada')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-medium text-sm transition">Cancelar</button>
+        <button type="button" onclick="salvarChamadaDB()" class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition">Salvar Encontro</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
