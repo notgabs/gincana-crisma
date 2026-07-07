@@ -1,4 +1,20 @@
 // ==========================================
+// CONFIGURAÇÃO DO BANCO DE DADOS FIREBASE
+// ==========================================
+const firebaseConfig = {
+    apiKey: "AIzaSyDf7O1lS5YY6Z4wmlEP6CkVgpi6f4tARDE",
+    authDomain: "site-crisma.firebaseapp.com",
+    projectId: "site-crisma",
+    storageBucket: "site-crisma.firebasestorage.app",
+    messagingSenderId: "108273595313",
+    appId: "1:108273595313:web:352ae256ce47f7032a8390"
+};
+
+// Inicializa o Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ==========================================
 // BANCO DE DADOS INICIAL (LISTA OFICIAL)
 // ==========================================
 const crismandosOficiais = [
@@ -55,32 +71,67 @@ const crismandosOficiais = [
     { id: "j_51", nome: "João Pedro", catequista: "Sem Equipe" }
 ];
 
-// Instâncias globais para os gráficos não duplicarem
+// Arrays Nativos (Vão substituir o localStorage)
+let listaCrismandos = [];
+let chamadasDB = [];
+let desafiosDB = [];
+
 let chartAttendanceInstance = null;
 let chartGenderInstance = null;
+
+// ==========================================
+// SINCRONIZAÇÃO EM TEMPO REAL (O NOVO "CÉREBRO")
+// ==========================================
+
+// 1. Escuta alterações na lista de Crismandos (Fichas e Pontos)
+db.collection("crismandos").onSnapshot((snapshot) => {
+    listaCrismandos = snapshot.docs.map(doc => doc.data());
+    
+    // Se o banco estiver vazio pela primeira vez, sobe a lista oficial automaticamente!
+    if (listaCrismandos.length === 0) {
+        inicializarBancoDeDados();
+    } else {
+        renderCrismandos();
+        renderCatequistas();
+        atualizarRankingsAmemoria();
+        renderizarGraficosEstatisticas();
+    }
+});
+
+// 2. Escuta alterações nas Chamadas de Presença
+db.collection("chamadas").onSnapshot((snapshot) => {
+    chamadasDB = snapshot.docs.map(doc => doc.data());
+    renderChamadasSalvas();
+    renderizarGraficosEstatisticas();
+});
+
+// 3. Escuta alterações nos Desafios do Amemoria
+db.collection("desafios").onSnapshot((snapshot) => {
+    desafiosDB = snapshot.docs.map(doc => doc.data());
+    renderDesafios();
+});
+
+// Função para injetar a lista oficial inicial no Firebase
+function inicializarBancoDeDados() {
+    let batch = db.batch();
+    crismandosOficiais.forEach(jovem => {
+        let docRef = db.collection("crismandos").doc(jovem.id);
+        batch.set(docRef, jovem);
+    });
+    batch.commit().then(() => console.log("Banco Populado com Sucesso!"));
+}
+
 
 // ==========================================
 // CONTROLE DE INICIALIZAÇÃO E NAVEGAÇÃO
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('sidebar-menu');
-    if (sidebar) {
-        sidebar.classList.remove('md:translate-x-0');
-    }
+    if (sidebar) sidebar.classList.remove('md:translate-x-0');
 
-    if (!localStorage.getItem('crismandos')) {
-        localStorage.setItem('crismandos', JSON.stringify(crismandosOficiais));
-    }
-
+    // A aba atual continua salvando apenas localmente para conforto visual do usuário
     const ultimaAba = localStorage.getItem('aba_atual') || 'home';
     switchTab(ultimaAba);
-
-    try { renderCrismandos(); } catch(e) { console.error(e); }
-    try { renderCatequistas(); } catch(e) { console.error(e); }
-    try { renderDesafios(); } catch(e) { console.error(e); }
-    try { renderChamadasSalvas(); } catch(e) { console.error(e); }
-    try { carregarFotoSalva(); } catch(e) { console.error(e); }
-    try { atualizarRankingsAmemoria(); } catch(e) { console.error(e); }
 });
 
 function toggleMenu() {
@@ -119,25 +170,17 @@ function switchTab(tabId) {
         const tabButton = document.getElementById(`tab-${id}`);
         
         if (contentSection) {
-            if (id === tabId) {
-                contentSection.classList.remove('hidden');
-            } else {
-                contentSection.classList.add('hidden');
-            }
+            if (id === tabId) contentSection.classList.remove('hidden');
+            else contentSection.classList.add('hidden');
         }
         
         if (tabButton) {
-            if (id === tabId) {
-                tabButton.className = "w-full text-left px-3 py-2.5 rounded-lg font-medium transition bg-red-50 text-red-600 flex items-center space-x-2";
-            } else {
-                tabButton.className = "w-full text-left px-3 py-2.5 rounded-lg font-medium transition text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center space-x-2";
-            }
+            if (id === tabId) tabButton.className = "w-full text-left px-3 py-2.5 rounded-lg font-medium transition bg-red-50 text-red-600 flex items-center space-x-2";
+            else tabButton.className = "w-full text-left px-3 py-2.5 rounded-lg font-medium transition text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center space-x-2";
         }
     });
 
-    if (tabId === 'estatisticas') {
-        renderizarGraficosEstatisticas();
-    }
+    if (tabId === 'estatisticas') renderizarGraficosEstatisticas();
 
     const sidebar = document.getElementById('sidebar-menu');
     if (sidebar) {
@@ -154,9 +197,6 @@ function switchTab(tabId) {
 // LÓGICA DE GERAÇÃO DOS GRÁFICOS
 // ==========================================
 function renderizarGraficosEstatisticas() {
-    const chamadasDB = JSON.parse(localStorage.getItem('chamadas_salvas')) || [];
-    const listaCrismandos = JSON.parse(localStorage.getItem('crismandos')) || [];
-
     let totalPresencas = 0;
     let totalFaltas = 0;
 
@@ -185,9 +225,7 @@ function renderizarGraficosEstatisticas() {
             },
             options: {
                 responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
+                plugins: { legend: { position: 'bottom' } }
             }
         });
     }
@@ -200,11 +238,8 @@ function renderizarGraficosEstatisticas() {
             if (registro.status === 'presente') {
                 const crismando = listaCrismandos.find(j => j.id === registro.jovemId);
                 if (crismando) {
-                    if (crismando.genero === 'F') {
-                        presencasMeninas++;
-                    } else {
-                        presencasMeninos++; 
-                    }
+                    if (crismando.genero === 'F') presencasMeninas++;
+                    else presencasMeninos++; 
                 }
             }
         });
@@ -230,9 +265,7 @@ function renderizarGraficosEstatisticas() {
             },
             options: {
                 responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
+                plugins: { legend: { position: 'bottom' } }
             }
         });
     }
@@ -282,10 +315,7 @@ function abrirNovaChamada() {
     const container = document.getElementById('container-chamada-jovens');
     if (!container) return;
 
-    const dadosJovens = localStorage.getItem('crismandos');
-    if (!dadosJovens) return;
-
-    let lista = JSON.parse(dadosJovens);
+    let lista = [...listaCrismandos];
     lista.sort((a, b) => a.nome.localeCompare(b.nome));
 
     container.innerHTML = lista.map(jovem => `
@@ -305,9 +335,7 @@ function abrirNovaChamada() {
 }
 
 function editarChamada(chamadaId) {
-    const chamadasDB = JSON.parse(localStorage.getItem('chamadas_salvas')) || [];
     const llamadaParaEditar = chamadasDB.find(c => c.id === chamadaId); 
-    
     if (!llamadaParaEditar) return;
 
     document.getElementById('chamada-id-edicao').value = llamadaParaEditar.id;
@@ -318,10 +346,7 @@ function editarChamada(chamadaId) {
     const container = document.getElementById('container-chamada-jovens');
     if (!container) return;
 
-    const dadosJovens = localStorage.getItem('crismandos');
-    if (!dadosJovens) return;
-
-    let listaJovens = JSON.parse(dadosJovens);
+    let listaJovens = [...listaCrismandos];
     listaJovens.sort((a, b) => a.nome.localeCompare(b.nome));
 
     container.innerHTML = listaJovens.map(jovem => {
@@ -406,53 +431,40 @@ function salvarChamadaDB() {
         listaAlunosStatus.push({ jovemId: id, status: status });
     });
 
-    let chamadasDB = JSON.parse(localStorage.getItem('chamadas_salvas')) || [];
+    const novaChamada = {
+        id: idEdicao ? idEdicao : 'chamada_' + Date.now(),
+        data: dataVal,
+        tema: temaVal,
+        descricao: descVal,
+        totalPresencas: presencasCont,
+        totalFaltas: faltasCont,
+        presencas: listaAlunosStatus
+    };
 
-    if (idEdicao) {
-        const index = chamadasDB.findIndex(c => c.id === idEdicao);
-        if (index !== -1) {
-            chamadasDB[index] = {
-                id: idEdicao,
-                data: dataVal,
-                tema: temaVal,
-                descricao: descVal,
-                totalPresencas: presencasCont,
-                totalFaltas: faltasCont,
-                presencas: listaAlunosStatus
-            };
-        }
-    } else {
-        const novaChamada = {
-            id: 'chamada_' + Date.now(),
-            data: dataVal,
-            tema: temaVal,
-            descricao: descVal,
-            totalPresencas: presencasCont,
-            totalFaltas: faltasCont,
-            presencas: listaAlunosStatus
-        };
-        chamadasDB.push(novaChamada);
-    }
-
-    localStorage.setItem('chamadas_salvas', JSON.stringify(chamadasDB));
-    closeModal('modal-chamada');
-    renderChamadasSalvas();
+    // Salva ou atualiza a chamada ONLINE (Firebase)
+    db.collection("chamadas").doc(novaChamada.id).set(novaChamada)
+      .then(() => {
+          closeModal('modal-chamada');
+      })
+      .catch((error) => {
+          alert("Erro ao salvar encontro: " + error);
+      });
 }
 
 function renderChamadasSalvas() {
     const containerLista = document.getElementById('lista-chamadas-salvas');
     if (!containerLista) return;
 
-    const chamadasDB = JSON.parse(localStorage.getItem('chamadas_salvas')) || [];
-
     if (chamadasDB.length === 0) {
         containerLista.innerHTML = `<p class="text-gray-400 text-sm text-center py-6">Nenhuma chamada registrada. Clique em + Nova Chamada!</p>`;
         return;
     }
 
-    chamadasDB.sort((a, b) => new Date(b.data) - new Date(a.data));
+    // Criando uma cópia para ordenar sem afetar o array original
+    let chamadasOrdenadas = [...chamadasDB];
+    chamadasOrdenadas.sort((a, b) => new Date(b.data) - new Date(a.data));
 
-    containerLista.innerHTML = chamadasDB.map(chamada => {
+    containerLista.innerHTML = chamadasOrdenadas.map(chamada => {
         const [ano, mes, dia] = chamada.data.split('-');
         const dataFormatada = `${dia}/${mes}/${ano}`;
 
@@ -480,10 +492,8 @@ function renderChamadasSalvas() {
 
 function deletarChamada(chamadaId) {
     if (confirm("Tem certeza que deseja apagar o registro de chamada desse encontro?")) {
-        let chamadasDB = JSON.parse(localStorage.getItem('chamadas_salvas')) || [];
-        chamadasDB = chamadasDB.filter(c => c.id !== chamadaId); 
-        localStorage.setItem('chamadas_salvas', JSON.stringify(chamadasDB));
-        renderChamadasSalvas();
+        // Exclui a chamada ONLINE (Firebase)
+        db.collection("chamadas").doc(chamadaId).delete();
     }
 }
 
@@ -553,22 +563,19 @@ function criarDesafio(event) {
         opcoes: opcoes
     };
 
-    let desafiosDB = JSON.parse(localStorage.getItem('gincana_desafios')) || [];
-    desafiosDB.push(novoDesafio);
-    localStorage.setItem('gincana_desafios', JSON.stringify(desafiosDB));
-
-    closeModal('modal-desafio');
-    closeModal('modal-challenge');
-    
-    document.getElementById('form-desafio').reset();
-    renderDesafios(); 
+    // Cria Desafio ONLINE (Firebase)
+    db.collection("desafios").doc(novoDesafio.id).set(novoDesafio)
+      .then(() => {
+          closeModal('modal-desafio');
+          closeModal('modal-challenge');
+          document.getElementById('form-desafio').reset();
+      });
 }
 
 function renderDesafios() {
     const grid = document.getElementById('grid-challenges');
     if (!grid) return;
 
-    const desafiosDB = JSON.parse(localStorage.getItem('gincana_desafios')) || [];
     if (desafiosDB.length === 0) {
         grid.innerHTML = `<p class="text-gray-400 text-sm col-span-full text-center py-4">Nenhum desafio criado ainda. Clique em + Novo Desafio!</p>`;
         return;
@@ -595,15 +602,12 @@ function renderDesafios() {
 
 function deletarDesafio(challengeId) {
     if (confirm("Tem certeza que deseja remover este desafio?")) {
-        let desafiosDB = JSON.parse(localStorage.getItem('gincana_desafios')) || [];
-        desafiosDB = desafiosDB.filter(d => d.id !== challengeId);
-        localStorage.setItem('gincana_desafios', JSON.stringify(desafiosDB));
-        renderDesafios();
+        // Exclui o desafio ONLINE (Firebase)
+        db.collection("desafios").doc(challengeId).delete();
     }
 }
 
 function lancarPontosDesafioModal(desafioId) {
-    const desafiosDB = JSON.parse(localStorage.getItem('gincana_desafios')) || [];
     const desafio = desafiosDB.find(d => d.id === desafioId);
     if (!desafio) return;
 
@@ -617,10 +621,10 @@ function lancarPontosDesafioModal(desafioId) {
     const listContainer = document.getElementById('challenge-scoring-list');
     if (!listContainer) return;
 
-    let listaCrismandos = JSON.parse(localStorage.getItem('crismandos')) || [];
-    listaCrismandos.sort((a, b) => a.nome.localeCompare(b.nome));
+    let listaOrdenada = [...listaCrismandos];
+    listaOrdenada.sort((a, b) => a.nome.localeCompare(b.nome));
 
-    listContainer.innerHTML = listaCrismandos.map(jovem => `
+    listContainer.innerHTML = listaOrdenada.map(jovem => `
         <div class="flex items-center justify-between py-2 border-b border-gray-50 text-sm">
             <span class="font-medium text-gray-800 truncate pr-2">${jovem.nome}</span>
             <select data-jovem-id="${jovem.id}" class="select-pontos-jovem border rounded-lg p-1.5 text-xs bg-gray-50 font-semibold text-gray-700 outline-none focus:border-red-400 max-w-[160px]">
@@ -638,7 +642,7 @@ function salvarPontosDesafio() {
     if (!container) return;
 
     const dropdowns = container.querySelectorAll('.select-pontos-jovem');
-    let listaCrismandos = JSON.parse(localStorage.getItem('crismandos')) || [];
+    let batch = db.batch(); // O Firebase Batch salva todos os alunos de uma vez só!
     let pontosDistribuidos = false;
 
     dropdowns.forEach(select => {
@@ -648,29 +652,27 @@ function salvarPontosDesafio() {
         if (pontosAAdicionar > 0) {
             const index = listaCrismandos.findIndex(j => j.id === jovemId);
             if (index !== -1) {
-                if (!listaCrismandos[index].pontos) {
-                    listaCrismandos[index].pontos = 0;
-                }
-                listaCrismandos[index].pontos += pontosAAdicionar;
+                let pontosAtuais = listaCrismandos[index].pontos || 0;
+                let ref = db.collection("crismandos").doc(jovemId);
+                
+                // Manda pro firebase atualizar o aluno específico
+                batch.update(ref, { pontos: pontosAtuais + pontosAAdicionar });
                 pontosDistribuidos = true;
             }
         }
     });
 
     if (pontosDistribuidos) {
-        localStorage.setItem('crismandos', JSON.stringify(listaCrismandos));
-        alert("Pontuações salvas com sucesso no histórico dos crismandos!");
-        
-        try { renderCrismandos(); } catch(e){}
-        try { atualizarRankingsAmemoria(); } catch(e){}
+        batch.commit().then(() => {
+            alert("Pontuações salvas com sucesso no banco de dados!");
+            closeModal('modal-challenge');
+        });
+    } else {
+        closeModal('modal-challenge');
     }
-
-    closeModal('modal-challenge');
 }
 
 function atualizarRankingsAmemoria() {
-    const listaCrismandos = JSON.parse(localStorage.getItem('crismandos')) || [];
-    
     const listaIndividual = [...listaCrismandos]
         .filter(j => (j.pontos || 0) > 0)
         .sort((a, b) => (b.pontos || 0) - (a.pontos || 0));
@@ -722,10 +724,8 @@ function atualizarRankingsAmemoria() {
 function renderCrismandos() {
     const grid = document.getElementById('grid-crismandos');
     if (!grid) return;
-    const dados = localStorage.getItem('crismandos');
-    if (!dados) return;
 
-    let lista = JSON.parse(dados);
+    let lista = [...listaCrismandos];
     lista.sort((a, b) => a.nome.localeCompare(b.nome));
 
     grid.innerHTML = lista.map(jovem => `
@@ -737,7 +737,6 @@ function renderCrismandos() {
             <p class="text-xs text-gray-500 mb-4">Catequista: ${jovem.catequista}</p>
             <div class="flex space-x-2 mt-auto w-full">
                 <button onclick="verFicha('${jovem.id}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs py-1.5 rounded transition">Ver Ficha</button>
-                <button class="bg-red-50 hover:bg-red-100 text-red-600 p-1.5 rounded transition">🗑️</button>
             </div>
         </div>
     `).join('');
@@ -746,12 +745,9 @@ function renderCrismandos() {
 function renderCatequistas() {
     const grid = document.getElementById('grid-catequistas');
     if (!grid) return;
-    const dados = localStorage.getItem('crismandos');
-    if (!dados) return;
 
-    let lista = JSON.parse(dados);
     let grupos = {};
-    lista.forEach(jovem => {
+    listaCrismandos.forEach(jovem => {
         if (!grupos[jovem.catequista]) grupos[jovem.catequista] = [];
         grupos[jovem.catequista].push(jovem.nome);
     });
@@ -812,9 +808,7 @@ function toggleCheckbox(inputId, btnId) {
 }
 
 function verFicha(jovemId) {
-    const lista = JSON.parse(localStorage.getItem('crismandos')) || [];
-    const jovem = lista.find(j => j.id === jovemId);
-
+    const jovem = listaCrismandos.find(j => j.id === jovemId);
     if (!jovem) return;
 
     if (document.getElementById('student-id')) document.getElementById('student-id').value = jovem.id;
@@ -877,15 +871,12 @@ function destravarEdicaoFicha() {
     }
 }
 
-// FUNÇÃO OTIMIZADA: SALVA TANTO UM ALUNO NOVO QUANTO UMA EDIÇÃO
 function salvarFichaCrismando(event) {
     event.preventDefault();
 
     const id = document.getElementById('student-id').value;
-    let lista = JSON.parse(localStorage.getItem('crismandos')) || [];
-    const index = lista.findIndex(j => j.id === id);
+    const index = listaCrismandos.findIndex(j => j.id === id);
 
-    // Constrói os dados da tela
     const jovemData = {
         id: id,
         nome: document.getElementById('student-name').value.trim(),
@@ -899,30 +890,22 @@ function salvarFichaCrismando(event) {
         batLocal: document.getElementById('student-batismo-local').value.trim(),
         comunhao: document.getElementById('student-comunhao').value,
         observacao: document.getElementById('student-special').value.trim(),
-        // Se já existia no banco, mantemos o catequista e os pontos dele intactos
-        catequista: index !== -1 ? lista[index].catequista : "Sem Equipe",
-        pontos: index !== -1 ? lista[index].pontos : 0
+        catequista: index !== -1 ? listaCrismandos[index].catequista : "Sem Equipe",
+        pontos: index !== -1 ? listaCrismandos[index].pontos : 0
     };
 
     if (!jovemData.nome) return alert('Por favor, digite o nome do crismando!');
 
-    if (index !== -1) {
-        // Se encontrou o ID, é uma EDIÇÃO. Sobrescreve os dados.
-        lista[index] = jovemData;
-    } else {
-        // Se NÃO encontrou o ID, é um ALUNO NOVO. Adiciona na lista.
-        lista.push(jovemData);
-    }
-
-    localStorage.setItem('crismandos', JSON.stringify(lista));
-    
-    closeModal('modal-crismando');
-    renderCrismandos(); 
-    renderCatequistas(); 
-    try { atualizarRankingsAmemoria(); } catch(e){}
+    // Salva ou atualiza Aluno ONLINE (Firebase)
+    db.collection("crismandos").doc(jovemData.id).set(jovemData)
+      .then(() => {
+          closeModal('modal-crismando');
+      })
+      .catch((error) => {
+          alert("Erro ao salvar o crismando no banco de dados: " + error);
+      });
 }
 
-// FUNÇÃO OTIMIZADA: LIMPA TUDO E ABRE A TELA
 function novoCrismando() {
     if (document.getElementById('student-id')) {
         document.getElementById('student-id').value = 'jovem_' + Date.now();
@@ -959,41 +942,4 @@ function novoCrismando() {
     }
 
     openModal('modal-crismando');
-}
-
-// ==========================================
-// LÓGICA DA FOTO OFICIAL DA TURMA
-// ==========================================
-const fotoInput = document.getElementById('main-photo-input');
-if (fotoInput) {
-    fotoInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const base64Image = event.target.result;
-            localStorage.setItem('foto_oficial_turma', base64Image);
-            mostrarFotoNaTela(base64Image);
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function mostrarFotoNaTela(imgSrc) {
-    const placeholder = document.getElementById('photo-placeholder');
-    const displayImg = document.getElementById('main-photo-display');
-    
-    if (placeholder && displayImg) {
-        placeholder.classList.add('hidden'); 
-        displayImg.src = imgSrc;             
-        displayImg.classList.remove('hidden'); 
-    }
-}
-
-function carregarFotoSalva() {
-    const fotoSalva = localStorage.getItem('foto_oficial_turma');
-    if (fotoSalva) {
-        mostrarFotoNaTela(fotoSalva);
-    }
 }
