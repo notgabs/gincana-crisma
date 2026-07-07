@@ -6,7 +6,6 @@
   <title>Crisma</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- ÍCONE DA ABA DO NAVEGADOR (FAVICON) -->
   <link rel="icon" type="image/png" href="favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 </head>
@@ -56,19 +55,19 @@
 
     <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
 
- <section id="content-home" class="space-y-4 max-w-4xl mx-auto animate-fade-in pb-12 relative bg-transparent -mt-6">
+      <section id="content-home" class="space-y-4 max-w-4xl mx-auto animate-fade-in pb-12 relative bg-transparent -mt-6">
         
-        <div class="fixed left-0 top-20 bottom-0 w-[35vw] pointer-events-none opacity-30 flex items-center justify-start select-none z-[-10] overflow-hidden bg-transparent">
+        <div class="hidden md:flex fixed left-0 top-20 bottom-0 w-[35vw] pointer-events-none opacity-30 items-center justify-start select-none z-[-10] overflow-hidden bg-transparent">
           <img src="maria.png" onerror="this.style.display='none'" class="h-[80%] w-auto object-contain object-left scale-110 -translate-x-6" style="position: fixed; z-index: -10;">
         </div>
         
-        <div class="fixed right-0 top-20 bottom-0 w-[35vw] pointer-events-none opacity-30 flex items-center justify-end select-none z-[-10] overflow-hidden bg-transparent">
+        <div class="hidden md:flex fixed right-0 top-20 bottom-0 w-[35vw] pointer-events-none opacity-30 items-center justify-end select-none z-[-10] overflow-hidden bg-transparent">
           <img src="jesus.png" onerror="this.style.display='none'" class="h-[80%] w-auto object-contain object-right scale-110 translate-x-6" style="position: fixed; z-index: -10;">
         </div>
 
         <div class="relative z-10 space-y-4 bg-transparent">
           
-         <div class="text-center pt-16 pb-2 bg-transparent flex flex-col items-center justify-center">
+          <div class="text-center pt-16 pb-2 bg-transparent flex flex-col items-center justify-center">
             <h1 class="text-8xl sm:text-[11rem] font-normal bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent drop-shadow-sm py-4 -my-2 relative z-10" 
                 style="font-family: 'Great Vibes', cursive; line-height: 1; overflow: visible;">
               Crisma
@@ -85,40 +84,35 @@
           </div>
 
           <div class="bg-[#faf9f5] rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden p-4 transition-all duration-300 hover:shadow-2xl relative z-10">
-            <img id="main-photo-display" class="w-full max-h-[550px] object-cover rounded-xl shadow-md block" src="foto-menu-inicial.jpeg" alt="Foto Oficial Crisma 2026">
+            <img id="main-photo-display" class="w-full max-h-[550px] object-cover rounded-xl shadow-md block" src="foto-menu-inicial.jpeg" alt="Foto Oficial Crisma">
           </div>
 
           <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl shadow-lg p-6 relative overflow-hidden text-center border border-red-600 relative z-10">
             <div class="absolute -left-8 -top-8 text-white/10 text-9xl font-black select-none pointer-events-none scale-x-[-1] rotate-45">🕊️</div>
-            
             <div class="absolute -right-10 -bottom-10 text-white/10 text-9xl font-black select-none pointer-events-none">🕊️</div>
-            
             <p class="text-lg sm:text-xl text-white italic font-medium leading-relaxed max-w-2xl mx-auto drop-shadow-sm relative z-20">
               "Site feito para meus amigos catequistas conseguirem ver melhor e melhorarmos nossa organização, espero que gostem!"
             </p>
           </div>
-
-          
           
         </div>
       </section>
 
-      <!-- ABA 2: CRISMANDOS -->
       <section id="content-crismandos" class="hidden space-y-4">
         <div class="flex justify-between items-center">
           <h2 class="text-2xl font-bold text-gray-900">Cadastro de Crismandos</h2>
-          <button onclick="openModal('modal-crismando')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium shadow transition">+ Novo Crismando</button>
+          <button onclick="novoCrismando()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium shadow transition"> 
+             + Novo Crismando
+          </button>
         </div>
         <div id="grid-crismandos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
       </section>
 
-      <!-- ABA 3: CATEQUISTAS -->
       <section id="content-catequistas" class="hidden space-y-4">
         <h2 class="text-2xl font-bold text-gray-900">Equipe de Catequistas</h2>
         <div id="grid-catequistas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
       </section>
 
-      <!-- ABA 4: CHAMADA -->
       <section id="content-chamada" class="hidden space-y-6">
         <div class="flex justify-between items-center">
           <h2 class="text-2xl font-bold text-gray-900">Controle de Presença</h2>
@@ -127,7 +121,6 @@
         <div id="lista-chamadas-salvas" class="space-y-4"></div>
       </section>
 
-      <!-- ABA 5: AMEMORIA -->
       <section id="content-amemoria" class="hidden space-y-6">
         <div class="flex justify-between items-center">
           <h2 class="text-2xl font-bold text-gray-900">Amemoria</h2>
@@ -148,9 +141,7 @@
         </div>
       </section>
 
-      <!-- ABA 6: ESTATÍSTICAS -->
       <section id="content-estatisticas" class="hidden space-y-6">
-       <!-- GRÁFICOS AJUSTADOS COM TAMANHO MAXIMIZADO EM ATÉ 300PX -->
         <div id="area-conteudo-estatisticas" class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
             <h3 class="text-lg font-bold mb-4 text-gray-700 w-full text-left">Porcentagem de Presença Geral</h3>
@@ -170,7 +161,6 @@
     </main>
   </div>
 
-  <!-- MODAL 1: FICHA DO CRISMANDO -->
   <div id="modal-crismando" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl h-[85vh] flex flex-col overflow-hidden">
       <div class="bg-gray-50 border-b p-4 flex justify-between items-center">
@@ -262,7 +252,6 @@
     </div>
   </div>
 
-  <!-- MODAL 2: LANÇAR PONTUAÇÃO (AJUSTADO) -->
   <div id="modal-challenge" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-xl overflow-hidden">
       <div class="bg-gray-50 border-b p-4 flex justify-between items-center">
@@ -272,7 +261,6 @@
       <div class="p-4 space-y-4">
         <p id="challenge-modal-desc" class="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border"></p>
         
-        <!-- Lista de crismandos com selects de pontuação -->
         <div id="challenge-scoring-list" class="space-y-2 max-h-[50vh] overflow-y-auto pr-1"></div>
         
         <div class="flex justify-end space-x-2 pt-3 border-t">
@@ -283,7 +271,6 @@
     </div>
   </div>
 
-  <!-- MODAL 3: CRIAR NOVO DESAFIO -->
   <div id="modal-desafio" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
       <div class="bg-gray-50 border-b p-4 flex justify-between items-center">
@@ -316,7 +303,6 @@
     </div>
   </div>
 
-  <!-- MODAL 4: REGISTRAR CHAMADA (CORRIGIDO) -->
   <div id="modal-chamada" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden">
       <div class="bg-gray-50 border-b p-4 flex justify-between items-center">

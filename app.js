@@ -59,8 +59,6 @@ const crismandosOficiais = [
 let chartAttendanceInstance = null;
 let chartGenderInstance = null;
 
-
-
 // ==========================================
 // CONTROLE DE INICIALIZAÇÃO E NAVEGAÇÃO
 // ==========================================
@@ -82,32 +80,8 @@ window.addEventListener('DOMContentLoaded', () => {
     try { renderDesafios(); } catch(e) { console.error(e); }
     try { renderChamadasSalvas(); } catch(e) { console.error(e); }
     try { carregarFotoSalva(); } catch(e) { console.error(e); }
-    try { atualizarStatusPlanilhas(); } catch(e) { console.error(e); }
     try { atualizarRankingsAmemoria(); } catch(e) { console.error(e); }
 });
-
-function atualizarStatusPlanilhas() {
-    const statusAnjos = document.getElementById('status-anjos');
-    if (statusAnjos) {
-        statusAnjos.textContent = "✅ Lista Oficial Ativa!";
-        statusAnjos.className = "text-[10px] text-green-600 font-bold mt-1";
-    }
-
-    if (localStorage.getItem('raw_presenca')) {
-        const statusPresenca = document.getElementById('status-presenca');
-        if (statusPresenca) {
-            statusPresenca.textContent = "✅ Carregado!";
-            statusPresenca.className = "text-[10px] text-green-600 font-bold mt-1";
-        }
-    }
-    if (localStorage.getItem('raw_pontos')) {
-        const statusPoints = document.getElementById('status-pontos');
-        if (statusPoints) {
-            statusPoints.textContent = "✅ Carregado!";
-            statusPoints.className = "text-[10px] text-green-600 font-bold mt-1";
-        }
-    }
-}
 
 function toggleMenu() {
     const sidebar = document.getElementById('sidebar-menu');
@@ -161,7 +135,6 @@ function switchTab(tabId) {
         }
     });
 
-    // Se o usuário clicar na aba de estatísticas, reconstrói os gráficos com dados frescos
     if (tabId === 'estatisticas') {
         renderizarGraficosEstatisticas();
     }
@@ -178,13 +151,12 @@ function switchTab(tabId) {
 }
 
 // ==========================================
-// LÓGICA DE GERAÇÃO DOS GRÁFICOS (NOVA)
+// LÓGICA DE GERAÇÃO DOS GRÁFICOS
 // ==========================================
 function renderizarGraficosEstatisticas() {
     const chamadasDB = JSON.parse(localStorage.getItem('chamadas_salvas')) || [];
     const listaCrismandos = JSON.parse(localStorage.getItem('crismandos')) || [];
 
-    // --- 1. PROCESSA DADOS DE PRESENÇA GERAL ---
     let totalPresencas = 0;
     let totalFaltas = 0;
 
@@ -220,30 +192,24 @@ function renderizarGraficosEstatisticas() {
         });
     }
 
-    // --- 2. PROCESSA ENGAJAMENTO (PRESENÇAS REAIS DE MENINOS VS MENINAS) ---
     let presencasMeninos = 0;
     let presencasMeninas = 0;
 
-    // Percorre cada encontro salvo
     chamadasDB.forEach(chamada => {
-        // Percorre a lista de presença daquele encontro
         chamada.presencas.forEach(registro => {
-            // Só conta se o status for de fato 'presente'
             if (registro.status === 'presente') {
-                // Encontra o crismando correspondente para checar o gênero
                 const crismando = listaCrismandos.find(j => j.id === registro.jovemId);
                 if (crismando) {
                     if (crismando.genero === 'F') {
                         presencasMeninas++;
                     } else {
-                        presencasMeninos++; // Padrão 'M'
+                        presencasMeninos++; 
                     }
                 }
             }
         });
     });
 
-    // Se nenhuma presença tiver sido registrada ainda, inicia com valor zerado/padrão para não quebrar a pizza
     if (presencasMeninos === 0 && presencasMeninas === 0) {
         presencasMeninos = 0;
         presencasMeninas = 0;
@@ -340,16 +306,14 @@ function abrirNovaChamada() {
 
 function editarChamada(chamadaId) {
     const chamadasDB = JSON.parse(localStorage.getItem('chamadas_salvas')) || [];
-    // CORRIGIDO: mudou de llamadaId para chamadaId no final da linha
-    const chamadaParaEditar = chamadasDB.find(c => c.id === chamadaId); 
+    const llamadaParaEditar = chamadasDB.find(c => c.id === chamadaId); 
     
-    if (!chamadaParaEditar) return;
+    if (!llamadaParaEditar) return;
 
-    // Preenche as informações principais no formulário do modal
-    document.getElementById('chamada-id-edicao').value = chamadaParaEditar.id;
-    document.getElementById('chamada-data').value = chamadaParaEditar.data; 
-    document.getElementById('chamada-tema').value = chamadaParaEditar.tema;
-    document.getElementById('chamada-desc').value = chamadaParaEditar.descricao || '';
+    document.getElementById('chamada-id-edicao').value = llamadaParaEditar.id;
+    document.getElementById('chamada-data').value = llamadaParaEditar.data; 
+    document.getElementById('chamada-tema').value = llamadaParaEditar.tema;
+    document.getElementById('chamada-desc').value = llamadaParaEditar.descricao || '';
 
     const container = document.getElementById('container-chamada-jovens');
     if (!container) return;
@@ -360,9 +324,8 @@ function editarChamada(chamadaId) {
     let listaJovens = JSON.parse(dadosJovens);
     listaJovens.sort((a, b) => a.nome.localeCompare(b.nome));
 
-    // Reconstrói a lista aplicando as cores corretas baseadas no histórico salvo
     container.innerHTML = listaJovens.map(jovem => {
-        const registroSalvo = chamadaParaEditar.presencas.find(p => p.jovemId === jovem.id);
+        const registroSalvo = llamadaParaEditar.presencas.find(p => p.jovemId === jovem.id);
         const status = registroSalvo ? registroSalvo.status : 'pendente';
         
         let classesBotao = "flex items-center space-x-3 p-3 rounded-xl border text-left transition w-full shadow-sm ";
@@ -395,6 +358,7 @@ function editarChamada(chamadaId) {
 
     openModal('modal-chamada');
 }
+
 function alternarStatusChamada(btnElement) {
     const statusAtual = btnElement.getAttribute('data-status');
     const indicador = btnElement.querySelector('.status-indicator');
@@ -524,10 +488,8 @@ function deletarChamada(chamadaId) {
 }
 
 // ==========================================
-// LÓGICA DA ARENA DO AMEMORIA (REFORMULADA)
+// LÓGICA DA ARENA DO AMEMORIA 
 // ==========================================
-
-// Atualizado para abrir o modal de lançamento real
 function handleEnqueteInput(inputElement) {
     const container = document.getElementById('enquete-options-container');
     if (!container) return;
@@ -536,7 +498,6 @@ function handleEnqueteInput(inputElement) {
     const lastRow = rows[rows.length - 1];
     const lastInput = lastRow ? lastRow.querySelector('.enquete-text') : null;
     
-    // Se o usuário digitou na última linha, cria uma nova linha vazia embaixo (igual WhatsApp)
     if (inputElement === lastInput && inputElement.value.trim() !== "") {
         const newRow = document.createElement('div');
         newRow.className = "flex items-center space-x-2 option-row";
@@ -548,7 +509,6 @@ function handleEnqueteInput(inputElement) {
         return;
     }
 
-    // Se o usuário apagou e deixou linhas vazias seguidas, remove as linhas extras do final
     rows = Array.from(container.getElementsByClassName('option-row'));
     if (rows.length > 1) {
         for (let i = rows.length - 2; i >= 0; i--) {
@@ -597,14 +557,10 @@ function criarDesafio(event) {
     desafiosDB.push(novoDesafio);
     localStorage.setItem('gincana_desafios', JSON.stringify(desafiosDB));
 
-    // Força o fechamento tentando os dois IDs possíveis por segurança
     closeModal('modal-desafio');
     closeModal('modal-challenge');
     
-    // Limpa os campos do formulário para o próximo
     document.getElementById('form-desafio').reset();
-
-    // Atualiza a tela imediatamente
     renderDesafios(); 
 }
 
@@ -653,7 +609,6 @@ function lancarPontosDesafioModal(desafioId) {
 
     document.getElementById('challenge-modal-title').textContent = `🎯 Pontuar: ${desafio.titulo}`;
     
-    // Atualiza a descrição e protege caso não exista
     const descElement = document.getElementById('challenge-modal-desc');
     if (descElement) {
         descElement.textContent = desafio.descricao || "Selecione o alvo atingido por cada crismando neste desafio.";
@@ -678,7 +633,6 @@ function lancarPontosDesafioModal(desafioId) {
     openModal('modal-challenge');
 }
 
-// NOVA FUNÇÃO: Varre os selects do modal e computa os pontos no localStorage de cada crismando
 function salvarPontosDesafio() {
     const container = document.getElementById('challenge-scoring-list');
     if (!container) return;
@@ -694,11 +648,9 @@ function salvarPontosDesafio() {
         if (pontosAAdicionar > 0) {
             const index = listaCrismandos.findIndex(j => j.id === jovemId);
             if (index !== -1) {
-                // Se o crismando ainda não tiver a propriedade pontos, inicia com 0
                 if (!listaCrismandos[index].pontos) {
                     listaCrismandos[index].pontos = 0;
                 }
-                // Acumula os novos pontos
                 listaCrismandos[index].pontos += pontosAAdicionar;
                 pontosDistribuidos = true;
             }
@@ -709,7 +661,6 @@ function salvarPontosDesafio() {
         localStorage.setItem('crismandos', JSON.stringify(listaCrismandos));
         alert("Pontuações salvas com sucesso no histórico dos crismandos!");
         
-        // Atualiza as telas e rankings
         try { renderCrismandos(); } catch(e){}
         try { atualizarRankingsAmemoria(); } catch(e){}
     }
@@ -717,11 +668,9 @@ function salvarPontosDesafio() {
     closeModal('modal-challenge');
 }
 
-// NOVA FUNÇÃO: Calcula e preenche automaticamente o ranking individual e por equipes na tela
 function atualizarRankingsAmemoria() {
     const listaCrismandos = JSON.parse(localStorage.getItem('crismandos')) || [];
     
-    // 1. RANKING INDIVIDUAL
     const listaIndividual = [...listaCrismandos]
         .filter(j => (j.pontos || 0) > 0)
         .sort((a, b) => (b.pontos || 0) - (a.pontos || 0));
@@ -740,16 +689,15 @@ function atualizarRankingsAmemoria() {
         }
     }
 
-    // 2. RANKING POR EQUIPE (CATEQUISTA)
-    let pontosPorEquipe = {};
+    let pointsPorEquipe = {};
     listaCrismandos.forEach(j => {
         const equipe = j.catequista || "Sem Equipe";
-        if (!pontosPorEquipe[equipe]) pontosPorEquipe[equipe] = 0;
-        pontosPorEquipe[equipe] += (j.pontos || 0);
+        if (!pointsPorEquipe[equipe]) pointsPorEquipe[equipe] = 0;
+        pointsPorEquipe[equipe] += (j.pontos || 0);
     });
 
-    const listaEquipes = Object.keys(pontosPorEquipe)
-        .map(nome => ({ nome: nome, pontos: pontosPorEquipe[nome] }))
+    const listaEquipes = Object.keys(pointsPorEquipe)
+        .map(nome => ({ nome: nome, pontos: pointsPorEquipe[nome] }))
         .filter(e => e.pontos > 0)
         .sort((a, b) => b.pontos - a.pontos);
 
@@ -922,7 +870,6 @@ function destravarEdicaoFicha() {
 
     const rodape = document.querySelector('#form-crismando .flex.justify-end');
     if (rodape) {
-        // AJUSTADO: bg-red-500 mudou para bg-green-500 e hover:bg-red-600 mudou para hover:bg-green-600
         rodape.innerHTML = `
             <button type="button" onclick="verFicha(document.getElementById('student-id').value)" class="px-5 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 font-medium text-sm transition">Cancelar</button>
             <button type="submit" class="px-5 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white font-medium text-sm transition">Salvar Alterações</button>
@@ -930,6 +877,7 @@ function destravarEdicaoFicha() {
     }
 }
 
+// FUNÇÃO OTIMIZADA: SALVA TANTO UM ALUNO NOVO QUANTO UMA EDIÇÃO
 function salvarFichaCrismando(event) {
     event.preventDefault();
 
@@ -937,25 +885,80 @@ function salvarFichaCrismando(event) {
     let lista = JSON.parse(localStorage.getItem('crismandos')) || [];
     const index = lista.findIndex(j => j.id === id);
 
-    if (index !== -1) {
-        lista[index].nome = document.getElementById('student-name').value.trim();
-        lista[index].documento = document.getElementById('student-doc').value.trim();
-        lista[index].dataNascimento = document.getElementById('student-birth').value;
-        lista[index].genero = document.getElementById('student-gender').value;
-        lista[index].telefone = document.getElementById('student-phone').value.trim();
-        lista[index].responsavelNome = document.getElementById('student-resp-name').value.trim();
-        lista[index].responsavelTelefone = document.getElementById('student-resp-phone').value.trim();
-        lista[index].batizado = document.getElementById('student-batizado').value;
-        lista[index].batLocal = document.getElementById('student-batismo-local').value.trim();
-        lista[index].comunhao = document.getElementById('student-comunhao').value;
-        lista[index].observacao = document.getElementById('student-special').value.trim();
+    // Constrói os dados da tela
+    const jovemData = {
+        id: id,
+        nome: document.getElementById('student-name').value.trim(),
+        documento: document.getElementById('student-doc').value.trim(),
+        dataNascimento: document.getElementById('student-birth').value,
+        genero: document.getElementById('student-gender').value,
+        telefone: document.getElementById('student-phone').value.trim(),
+        responsavelNome: document.getElementById('student-resp-name').value.trim(),
+        responsavelTelefone: document.getElementById('student-resp-phone').value.trim(),
+        batizado: document.getElementById('student-batizado').value,
+        batLocal: document.getElementById('student-batismo-local').value.trim(),
+        comunhao: document.getElementById('student-comunhao').value,
+        observacao: document.getElementById('student-special').value.trim(),
+        // Se já existia no banco, mantemos o catequista e os pontos dele intactos
+        catequista: index !== -1 ? lista[index].catequista : "Sem Equipe",
+        pontos: index !== -1 ? lista[index].pontos : 0
+    };
 
-        localStorage.setItem('crismandos', JSON.stringify(lista));
-        
-        closeModal('modal-crismando');
-        renderCrismandos(); 
-        renderCatequistas(); 
+    if (!jovemData.nome) return alert('Por favor, digite o nome do crismando!');
+
+    if (index !== -1) {
+        // Se encontrou o ID, é uma EDIÇÃO. Sobrescreve os dados.
+        lista[index] = jovemData;
+    } else {
+        // Se NÃO encontrou o ID, é um ALUNO NOVO. Adiciona na lista.
+        lista.push(jovemData);
     }
+
+    localStorage.setItem('crismandos', JSON.stringify(lista));
+    
+    closeModal('modal-crismando');
+    renderCrismandos(); 
+    renderCatequistas(); 
+    try { atualizarRankingsAmemoria(); } catch(e){}
+}
+
+// FUNÇÃO OTIMIZADA: LIMPA TUDO E ABRE A TELA
+function novoCrismando() {
+    if (document.getElementById('student-id')) {
+        document.getElementById('student-id').value = 'jovem_' + Date.now();
+    }
+    
+    const campos = ['student-name', 'student-doc', 'student-birth', 'student-phone', 'student-resp-name', 'student-resp-phone', 'student-batismo-local', 'student-special'];
+    campos.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    selecionarGenero('M');
+    
+    const batInput = document.getElementById('student-batizado');
+    if (batInput) {
+        batInput.value = 'S'; 
+        toggleCheckbox('student-batizado', 'btn-batismo');
+    }
+
+    const comInput = document.getElementById('student-comunhao');
+    if (comInput) {
+        comInput.value = 'S'; 
+        toggleCheckbox('student-comunhao', 'btn-comunhao');
+    }
+
+    travarCamposFicha(false);
+
+    const rodape = document.querySelector('#form-crismando .flex.justify-end');
+    if (rodape) {
+        rodape.innerHTML = `
+            <button type="button" onclick="closeModal('modal-crismando')" class="px-5 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 font-medium text-sm transition">Cancelar</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium text-sm transition">Cadastrar Crismando</button>
+        `;
+    }
+
+    openModal('modal-crismando');
 }
 
 // ==========================================
@@ -994,5 +997,3 @@ function carregarFotoSalva() {
         mostrarFotoNaTela(fotoSalva);
     }
 }
-
-function importCSV(tipo) { alert('A lista oficial de crismandos já está rodando direto pelo sistema!'); }
