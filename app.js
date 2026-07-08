@@ -853,8 +853,15 @@ function travarCamposFicha(status) {
     campos.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            if (status) el.setAttribute('disabled', 'true');
-            else el.removeAttribute('disabled');
+            // Usa a propriedade nativa para garantir 100% que vai travar/destravar
+            el.disabled = status; 
+            
+            // Adiciona um fundo cinza quando travado para ficar visualmente claro
+            if(status) {
+                el.classList.add('bg-gray-100', 'text-gray-500');
+            } else {
+                el.classList.remove('bg-gray-100', 'text-gray-500');
+            }
         }
     });
 }
@@ -942,4 +949,42 @@ function novoCrismando() {
     }
 
     openModal('modal-crismando');
+}
+
+// ==========================================
+// MÁSCARAS DE FORMULÁRIO (REFINAMENTO)
+// ==========================================
+function mascaraTelefone(event) {
+    let input = event.target;
+    let val = input.value.replace(/\D/g, ''); // Apaga tudo que não for número
+
+    if (val.length === 0) {
+        input.value = '';
+        return;
+    }
+    if (val.length <= 2) {
+        input.value = '(' + val;
+        return;
+    }
+    if (val.length <= 7) {
+        input.value = '(' + val.substring(0, 2) + ') ' + val.substring(2);
+        return;
+    }
+    // Formata limitando a 11 números (2 do DDD + 9 do telefone)
+    input.value = '(' + val.substring(0, 2) + ') ' + val.substring(2, 7) + '-' + val.substring(7, 11);
+}
+
+function mascaraCPF(event) {
+    let input = event.target;
+    let val = input.value.replace(/\D/g, ''); // Apaga o que não for número
+
+    if (val.length <= 3) {
+        input.value = val;
+    } else if (val.length <= 6) {
+        input.value = val.substring(0, 3) + '.' + val.substring(3);
+    } else if (val.length <= 9) {
+        input.value = val.substring(0, 3) + '.' + val.substring(3, 6) + '.' + val.substring(6);
+    } else {
+        input.value = val.substring(0, 3) + '.' + val.substring(3, 6) + '.' + val.substring(6, 9) + '-' + val.substring(9, 11);
+    }
 }
